@@ -1,0 +1,42 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
+    <title>Билеты</title>
+    {% macro render_list(relation) %}
+        <ul>
+            {% for i in range(len(relation)) %}
+                {% set value1 = str(relation.loc[i, relation.dtypes.index[0]]) %}
+                {% set value2 = str(relation.loc[i, relation.dtypes.index[1]]) %}
+                {% set value3 = str(relation.loc[i, relation.dtypes.index[2]]) %}
+                {% set value4 = str(relation.loc[i, relation.dtypes.index[3]]) %}
+                <li>{{value1+', '+value2+', '+value3+', '+value4}}</li>
+            {% endfor %}
+        </ul>
+    {% endmacro %}
+</head>
+<p>
+</p>
+<body>
+    <div class=menu>
+        <h1> Проверка билетов </h1>
+    </div>
+    <div class=block>
+        <form action='{{url_for("check")}}' method ="post">
+            <div>
+                <p>
+                    Введите email:
+                    <input type='text' name='email' {% if address!='' %} value="{{address}}" {% endif %}>
+                    <input type=submit value="✓">
+                </p>
+            </div>
+            <div>
+                {{ render_list(concerts_list) }}
+            </div>
+        </form>
+        <p>
+            <button onclick=window.history.back() name='noselect' type=submit>Назад</button>
+        </p>
+    </div>
+</body>
+</html>

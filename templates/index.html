@@ -1,0 +1,117 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css"/>
+    <title> Выбор концерта </title>
+    {% macro render_checkbox(name, relation, selected) %}
+        {% for i in range(len(relation)) %}
+            {% set value = str(relation.loc[i, relation.dtypes.index[0]]) %}
+            <div class=row>
+                {% if value in selected %}
+                    <input type=checkbox name={{name}} value={{value}} checked/>
+                {% else %}
+                    <input type=checkbox name={{name}} value={{value}} />
+                {% endif %}
+                {{str(relation.loc[i, relation.dtypes.index[1]]) + ' (' + str(relation.loc[i, relation.dtypes.index[2]]) + ')'}}
+            </div>
+        {% endfor %}
+    {% endmacro %}
+    {% macro render_list(relation, id) %}
+        <div class="list">
+            {% for i in range(3) %}
+            <b>{{relation.values[i][1]}}:</b> <br>{{relation.values[i][0]}}<br>
+            {% endfor %}
+<!--            <ul type="none">-->
+<!--&lt;!&ndash;                {% for i in relation.dtypes.index %}&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                    {% if relation.loc[i, relation.dtypes.index[2]]==id %}&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                        {% set value1 = str(relation.loc[i, relation.dtypes.index[0]]) %}&ndash;&gt;-->
+<!--&lt;!&ndash;                        {% set value2 = str(relation.loc[i, relation.dtypes.index[1]]) %}&ndash;&gt;-->
+<!--&lt;!&ndash;                        <li>{{ relation.loc[i, relation.dtypes.index[0]]+', '+relation.loc[i, relation.dtypes.index[1]] }}</li>&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                    {% endif %}&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                {% endfor %}&ndash;&gt;-->
+<!--            </ul>-->
+        </div>
+    {% endmacro %}
+    {% macro render_card(relation, songs_list) %}
+        {% set n = len(relation) %}
+            <div class=all_card>
+                {% for i in range(n) %}
+                    <div class=card>
+                        <div class=column>
+                            {% for name in relation.dtypes.index %}
+                                <div class=row>
+                                    <b>{{name}}</b>: {{ relation.loc[i, name] }}
+                                </div>
+                            {% endfor %}
+                            <div class="row ">
+                                <b>Список песен: </b>
+                                {{ render_list(songs_list, relation.loc[i, 'id_Концерта']) }}
+                            </div>
+                            <form action='' method ="get">
+                                <p class="row bot">
+                                    {% if relation.loc[i, 'Осталось_билетов']==0  %}
+                                        <button class="but empty" type="submit" value='{{relation.loc[i, "id_Концерта"]}}' name="concert" disabled>Мест нет</button>
+                                    {% else %}
+                                        {% if concert_id==str(relation.loc[i, 'id_Концерта']) and pressed==True %}
+                                            Введите email:
+                                            <input type="text" name="email" >
+                                            <button class="small" type="submit" value='{{relation.loc[i, 'id_Концерта']}}' name="bought">✓</button>
+                                            <button class="small" type="submit" value='{{concert_id}}' name="cancel">🗙</button>
+                                        {% else %}
+                                            <button class="but" type="submit" value='{{relation.loc[i, "id_Концерта"]}}' name="concert">Купить билет</button>
+                                        {% endif %}
+                                    {% endif %}
+                                </p>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+    {% endmacro %}
+</head>
+<body>
+    <div class=menu>
+        <h1> Фестиваль вокалоидов </h1>
+    </div>
+    <div class=row>
+        <p class="column">
+            <form action='' method ="get">
+                <div class='row checkboxs'>
+                    <div class=column>
+                        <div class='detail column'>
+                            <details {% if checked_list_producers!=[] %} open {% endif %}>
+                                <summary>Продюсеры</summary>
+                                {{render_checkbox('producers', producers_box, checked_list_producers)}}
+                            </details>
+                            <details {% if checked_list_day!=[] %} open {% endif %}>
+                                <summary>Дни недели</summary>
+                                {{render_checkbox('day', day_box, checked_list_day)}}
+                            </details>
+                            <details {% if checked_list_time!=[] %} open {% endif %}>
+                                <summary>Время</summary>
+                                {{render_checkbox('time', time_box, checked_list_time)}}
+                            </details>
+                        </div>
+                    </div>
+                </div>
+                        <p class="row mid">
+                            <input class="but " type="submit" value="Найти" name="search"/>
+                            <input class="but " type="submit" value="Очистить" name="reset"/>
+                        </p>
+            </form>
+        </p>
+        <p>
+            <div class='column cards' >
+                {{render_card(filter_box, df_songs_list)}}
+            </div>
+        </p>
+        <p>
+            <div class="row">
+                <form action='{{url_for("check")}}' method="get">
+                    <input class="but" type="submit" name='check' value='Проверить билеты' />
+                </form>
+            </div>
+        </p>
+    </div>
+</body>
+</html>
